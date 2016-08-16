@@ -1,4 +1,3 @@
-
 #define AEN 10
 #define APHASE 9
 #define BEN 6
@@ -22,7 +21,6 @@ void setup() {
 
 void loop() { 
 
- 
   motor_stop();
   Ltika();
   delay(50);
