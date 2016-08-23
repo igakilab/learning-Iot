@@ -11,28 +11,31 @@
 YunServer server;
 
 int URPWM = 3; // PWM Output 0－25000US，Every 50US represent 1cm
-int URTRIG=5; // PWM trigger pin
+int URTRIG = 5; // PWM trigger pin
 int stop1 = 1; // 動作flag
 int flag1 = 0; // 前後で動作しているか
 int flag2 = 0; // 緑のランプが点灯しているか
+char Aflag, Bflag;
+int v = 60;
 
 uint8_t EnPwmCmd[4]={0x44,0x02,0xbb,0x01};    // distance measure command
 
 void setup() {
-Bridge.begin();
-Console.begin();
-Serial.begin(9600);                         // Sets the baud rate to 9600
-
-pinMode(BEN, OUTPUT);
-pinMode(BPHASE, OUTPUT);
-pinMode(AEN, OUTPUT);
-pinMode(APHASE, OUTPUT);
-pinMode(MODE, OUTPUT);
-pinMode(4,INPUT) ;    //タクトスイッチに接続ピンをデジタル入力に設定
-pinMode(13, OUTPUT);
-pinMode(12, OUTPUT);
-digitalWrite(MODE, HIGH);
-digitalWrite(12, HIGH);
+  Bridge.begin();
+  Console.begin();
+  Serial.begin(9600);                         // Sets the baud rate to 9600
+  
+  pinMode(BEN, OUTPUT);
+  pinMode(BPHASE, OUTPUT);
+  pinMode(AEN, OUTPUT);
+  pinMode(APHASE, OUTPUT);
+  pinMode(MODE, OUTPUT);
+  pinMode(4,INPUT) ;    //タクトスイッチに接続ピンをデジタル入力に設定
+  pinMode(13, OUTPUT);
+  pinMode(12, OUTPUT);
+  digitalWrite(MODE, HIGH);
+  digitalWrite(12, HIGH);
+  
   server.listenOnLocalhost();
   server.begin();
   PWM_Mode_Setup();
@@ -41,16 +44,16 @@ digitalWrite(12, HIGH);
 void loop() { 
 
   YunClient client = server.accept();
-  
-  if (client) {
 
+  if (client) {
+    
     process(client);
     Console.println("accses");
-
+    
     client.stop();
   }
   PWM_Mode();
-
+  
   if (digitalRead(4) == HIGH && stop1 == 1) {     //スイッチの状態を調べる
       motor_forward();      //スイッチが押されているならLEDを点灯
       delay(250);
@@ -63,44 +66,45 @@ void loop() {
   delay(20);
 }
 
-void PWM_Mode_Setup() {
-   
+void PWM_Mode_Setup(){
+  
   pinMode(URTRIG,OUTPUT);                     // A low pull on pin COMP/TRIG
   digitalWrite(URTRIG,HIGH);                  // Set to HIGH
-   
+  
   pinMode(URPWM, INPUT);                      // Sending Enable PWM mode command
-   
+  
   for(int i=0;i<4;i++)
   {
       Serial.write(EnPwmCmd[i]);
   } 
 }
-  
+
 void PWM_Mode() {                              // a low pull on pin COMP/TRIG  triggering a sensor reading
   
   digitalWrite(URTRIG, LOW);
   digitalWrite(URTRIG, HIGH);               // reading Pin PWM will output pulses
   
   unsigned long DistanceMeasured=pulseIn(URPWM,LOW);
-
-  if(DistanceMeasured>=1000 && stop1 == 0){
+  
+  if(DistanceMeasured>=1500 && stop1 == 0){
     digitalWrite(12, LOW);
     digitalWrite(13, LOW);
     if(flag2 == 1){
-      analogWrite(AEN, 60);
-      analogWrite(BEN, 60);
+      motor_forward();
       flag2 = 0;
     }
   }
   
-  if(DistanceMeasured>=500 && DistanceMeasured<1000 && stop1 == 0)
-  {              // the reading is invalid.
+  if(DistanceMeasured>=500 && DistanceMeasured<1500 && stop1 == 0){              // the reading is invalid.
     digitalWrite(12, LOW);
     digitalWrite(13, HIGH);
     if(flag1 == 1){
-      analogWrite(AEN, 30);
-      analogWrite(BEN, 30);
       flag2 = 1;
+      v = slowdown(DistanceMeasured);
+      digitalWrite(APHASE, Aflag);
+      digitalWrite(BPHASE, Bflag);
+      analogWrite(AEN, v);
+      analogWrite(BEN, v);
     }
   }
   else if(DistanceMeasured<500 && stop1 == 0)
@@ -108,6 +112,12 @@ void PWM_Mode() {                              // a low pull on pin COMP/TRIG  t
     motor_stop();
   }
  
+}
+
+int slowdown(unsigned long a){ // 減速する計算式
+  int x;
+  x = (int)(a / 25);
+  return x;
 }
 
 void process(YunClient client) {
@@ -121,9 +131,9 @@ void process(YunClient client) {
   if (command == "BACK") {
     Console.println("Back");
     digitalWrite(BPHASE, HIGH);
-    analogWrite(BEN, 60);
+    analogWrite(BEN, 30);
     digitalWrite(APHASE, HIGH);
-    analogWrite(AEN, 60);
+    analogWrite(AEN, 30);
     flag1 = 1;
     stop1 = 0;
   }
@@ -154,8 +164,11 @@ void process(YunClient client) {
 }
 
 void motor_forward(){
-  digitalWrite(APHASE, LOW);
-  digitalWrite(BPHASE, LOW);
+  v = 60;
+  Aflag = 'LOW';
+  Bflag = 'LOW';
+  digitalWrite(APHASE, Aflag);
+  digitalWrite(BPHASE, Bflag);
   analogWrite(AEN, 60);
   analogWrite(BEN, 60);
   flag1 = 1;
