@@ -1,6 +1,7 @@
 #include <Bridge.h>
 #include <YunServer.h>
 #include <YunClient.h>
+//#include <Console.h>
 
 #define AEN 10
 #define APHASE 9
@@ -23,7 +24,8 @@ uint8_t EnPwmCmd[4]={0x44,0x02,0xbb,0x01};    // distance measure command
 void setup() {
   Bridge.begin();
   Console.begin();
-  Serial.begin(9600);                         // Sets the baud rate to 9600
+  //Serial.begin(9600);                         // Sets the baud rate to 9600
+  while (!Console);
   
   pinMode(BEN, OUTPUT);
   pinMode(BPHASE, OUTPUT);
@@ -73,10 +75,10 @@ void PWM_Mode_Setup(){
   
   pinMode(URPWM, INPUT);                      // Sending Enable PWM mode command
   
-  for(int i=0;i<4;i++)
+  /*for(int i=0;i<4;i++)
   {
       Serial.write(EnPwmCmd[i]);
-  } 
+  } */
 }
 
 void PWM_Mode() {                              // a low pull on pin COMP/TRIG  triggering a sensor reading
@@ -130,9 +132,9 @@ void process(YunClient client) {
   }
   if (command == "BACK") {
     Console.println("Back");
-    digitalWrite(BPHASE, HIGH);
+    digitalWrite(BPHASE, LOW);
     analogWrite(BEN, 30);
-    digitalWrite(APHASE, HIGH);
+    digitalWrite(APHASE, LOW);
     analogWrite(AEN, 30);
     flag1 = 1;
     stop1 = 0;
@@ -143,9 +145,9 @@ void process(YunClient client) {
   }
   if (command == "LEFT"){
     Console.println("Left");
-    digitalWrite(BPHASE, LOW);
+    digitalWrite(BPHASE, HIGH);
     analogWrite(BEN, 50);
-    digitalWrite(APHASE, HIGH);
+    digitalWrite(APHASE, LOW);
     analogWrite(AEN, 50);
     flag1 = 0;
     flag2 = 0;
@@ -153,9 +155,9 @@ void process(YunClient client) {
   }
   if (command == "RIGHT"){
     Console.println("Right");
-    digitalWrite(APHASE, LOW);
+    digitalWrite(APHASE, HIGH);
     analogWrite(AEN, 50);
-    digitalWrite(BPHASE, HIGH); 
+    digitalWrite(BPHASE, LOW); 
     analogWrite(BEN, 50);
     flag1 = 0;
     flag2 = 0;
@@ -165,8 +167,8 @@ void process(YunClient client) {
 
 void motor_forward(){
   v = 60;
-  Aflag = 'LOW';
-  Bflag = 'LOW';
+  Aflag = 'HIGH';
+  Bflag = 'HIGH';
   digitalWrite(APHASE, Aflag);
   digitalWrite(BPHASE, Bflag);
   analogWrite(AEN, 60);
