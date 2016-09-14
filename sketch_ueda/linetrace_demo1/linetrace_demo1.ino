@@ -1,3 +1,4 @@
+
 #define AEN 10
 #define APHASE 9
 #define BEN 6
@@ -21,6 +22,7 @@ void setup() {
 
 void loop() { 
 
+ 
   motor_stop();
   Ltika();
   delay(50);
@@ -56,12 +58,12 @@ void Ltika(){
       digitalWrite(APHASE, HIGH);
       digitalWrite(BPHASE, HIGH);
       analogWrite(AEN, 0);
-      analogWrite(BEN, 50);
+      analogWrite(BEN, 60);
       digitalWrite(13, HIGH);
    }else if(val_L < L && val_R > L){
       digitalWrite(APHASE, HIGH);
       digitalWrite(BPHASE, HIGH);
-      analogWrite(AEN, 50);
+      analogWrite(AEN, 60);
       analogWrite(BEN, 0);
       digitalWrite(13, HIGH);
    
