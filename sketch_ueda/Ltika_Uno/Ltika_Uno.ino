@@ -1,6 +1,19 @@
+#define AEN 10
+#define APHASE 9
+#define BEN 6
+#define BPHASE 5
+#define MODE 2
+
 void setup() {
                   
   Serial.begin(9600);
+
+  pinMode(BEN, OUTPUT);
+  pinMode(BPHASE, OUTPUT);
+  pinMode(AEN, OUTPUT);
+  pinMode(APHASE, OUTPUT);
+  pinMode(MODE, OUTPUT);
+  digitalWrite(MODE, HIGH);
 }
  
 void loop() {
@@ -13,5 +26,11 @@ void loop() {
   Serial.println(val_R) ; // シリアルモニターへ表示
   Serial.println("R") ; // シリアルモニターへ表示
   delay(100);
+
+  digitalWrite(APHASE, HIGH);
+  digitalWrite(BPHASE, HIGH);
+  analogWrite(AEN, 60);
+  analogWrite(BEN, 60);
+  
 }
  
