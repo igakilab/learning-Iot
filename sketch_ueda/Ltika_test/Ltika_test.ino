@@ -18,11 +18,13 @@ void loop() {
   val_L = analogRead(0) ; //アナログ0番ピンからセンサ値を読み込み
    Console.println(val_L) ; // シリアルモニターへ表示
    Console.println("L") ; // シリアルモニターへ表示
-//  val_R = analogRead(1) ; //アナログ1番ピンからセンサ値を読み込み
-//   Console.println(val_R) ; // シリアルモニターへ表示
-//   Serial.println("R") ; // シリアルモニターへ表示
+  val_R = analogRead(1) ; //アナログ1番ピンからセンサ値を読み込み
+   Console.println(val_R) ; // シリアルモニターへ表示
+   Console.println("R") ; // シリアルモニターへ表示
 
-  if(val_L >1/* && val_R >1*/){
+   delay(400);
+
+  if(val_L >1 && val_R >1){
     digitalWrite(13, HIGH);
   }else{
     digitalWrite(13, LOW);

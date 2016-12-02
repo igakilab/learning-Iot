@@ -22,7 +22,7 @@ void loop() {
   } 
   else {
     end_t = millis();
-    if(end_t - start_t >= 10000){
+    if(end_t - start_t >= 5000){
       digitalWrite(LED, LOW);
     }
   }
