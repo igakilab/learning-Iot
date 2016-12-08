@@ -2,8 +2,9 @@
 #include <Console.h>
 #include <YunServer.h>
 #include <YunClient.h>
-#include <SPI.h>
 #include <FileIO.h>
+
+#define MSG_LEN 4
 
 #define AEN 10
 #define APHASE 9
@@ -14,27 +15,24 @@
 YunServer server;
 
 void setup() {
-Bridge.begin();
-Console.begin();
-SPI.begin();
-FileSystem.begin();
-
-pinMode(BEN, OUTPUT);
-pinMode(BPHASE, OUTPUT);
-pinMode(AEN, OUTPUT);
-pinMode(APHASE, OUTPUT);
-pinMode(MODE, OUTPUT);
-digitalWrite(MODE, HIGH);
-
+  Bridge.begin();
+  Console.begin();
+  FileSystem.begin();
+  //while( !Console );
+  //Console.println("PROGRAM START");
+  
   server.listenOnLocalhost();
   server.begin();
 
   
 }
 
-void loop() {
+String messages[MSG_LEN] = {"いつやるの", "いまでしょ", "こんにちは", "上田です"};
+int cnt = 0;     //カウンター
+int wait = 250;  //スキップする回数
+int pos = 0;     //messagesの位置
 
-  int cnt = 2;
+void loop() {
 
   YunClient client = server.accept();
 
@@ -46,31 +44,16 @@ void loop() {
     client.stop();
   }
 
-  File myfile = FileSystem.open("aabsra.txt", FILE_WRITE);
-  File myfile2 = FileSystem.open(".txt", FILE_WRITE);
-  File myfile3 = FileSystem.open("bbb.txt", FILE_WRITE);
-  if (myfile) {
-    Console.println(F("OK"));
+  if( cnt % wait == 0 ){
+    File myfile = FileSystem.open("/mnt/sd/arduino/www/news.txt", FILE_WRITE);
+    myfile.println(messages[pos]);
+    Console.print("FILE UPDATED: ");
+    Console.println(messages[pos]);
+    pos = (pos + 1) % MSG_LEN;
+    cnt = 0;
   }
-  else {
-    Console.println(F("error opening datalog.txt"));
-  }
-  myfile.println("cntaaaaaaaaaaaaaaaaa\r\n");
-  myfile2.write(cnt);
-  myfile3.write(cnt);
-  myfile.close();
-  myfile2.close();
-  myfile3.close();
-  
-  /*if (myfile) {
-    myfile.println("cnt");
-    myfile.close();
-    Console.println(F("OK"));
-  }
-  else {
-    Console.println(F("error opening datalog.txt"));
-  }*/
-  
+
+  cnt++;
   delay(20);
 }
 
