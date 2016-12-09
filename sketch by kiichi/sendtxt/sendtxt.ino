@@ -85,21 +85,21 @@ analogWrite(5, 0);
 
 cds_2 = analogRead(1);//アナログ1番ピンからcds_2の抵抗値を読み込み
 if(cds_2 > 700) {
-  Traffictxt(0);
-  delay(100);
   Railroadtxt(0);
   delay(100);//0.3秒 
 }else{
-  Traffictxt(1);
-  delay(100);
   Railroadtxt(1);
   delay(100);//0.3秒
 }
 if(flag_1 == 1){
     Stationtxt(0);
     delay(100);
+    Traffictxt(0);
+    delay(100);
   }else{
     Stationtxt(1);
+    delay(100);
+    Traffictxt(1);
     delay(100);
   }
 client.println("");
@@ -120,9 +120,9 @@ void Stationtxt(int a){
 void Traffictxt(int a){
   File trafficfile = FileSystem.open("/mnt/sd/arduino/www/traffic.txt", FILE_WRITE);
   if(a == 0){
-    trafficfile.println("閉じる");
+    trafficfile.println("赤色");
   }else{
-    trafficfile.println("開く");
+    trafficfile.println("緑色");
   }
   trafficfile.close();
 }
@@ -130,9 +130,9 @@ void Traffictxt(int a){
 void Railroadtxt(int a){
   File railroadfile = FileSystem.open("/mnt/sd/arduino/www/railroad.txt", FILE_WRITE);
   if(a == 0){
-    railroadfile.println("赤色");
+    railroadfile.println("閉じる");
   }else{
-    railroadfile.println("緑色");
+    railroadfile.println("開く");
   }
   railroadfile.close();
 }
